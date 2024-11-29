@@ -38,5 +38,8 @@ def convert_srt_to_lrc(directory):
             print(f"转换完成: {filename} -> {lrc_path}")
 
 if __name__ == "__main__":
-    current_directory = os.getcwd()  # 获取当前目录
-    convert_srt_to_lrc(current_directory)
+    directory = input("请输入目标目录的路径：").strip()  # 输入指定目录
+    if os.path.isdir(directory):
+        convert_srt_to_lrc(directory)
+    else:
+        print("指定的目录无效，请检查路径并重试。")
