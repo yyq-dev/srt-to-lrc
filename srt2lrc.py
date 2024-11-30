@@ -20,14 +20,17 @@ def srt_to_lrc(srt_content):
             lrc_lines[-1] += line.strip()  # 将歌词内容追加到时间戳后
     return "\n".join(lrc_lines)
 
-def convert_srt_to_lrc(directory):
+def convert_srt_to_lrc(input_directory, output_directory):
     """
-    将指定目录中的所有 .srt 文件转换为 .lrc 文件
+    将输入目录中的所有 .srt 文件转换为 .lrc 文件，并保存到指定输出目录
     """
-    for filename in os.listdir(directory):
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)  # 如果输出目录不存在，则创建
+
+    for filename in os.listdir(input_directory):
         if filename.endswith(".srt"):
-            srt_path = os.path.join(directory, filename)
-            lrc_path = os.path.join(directory, filename.replace(".srt", ".lrc"))
+            srt_path = os.path.join(input_directory, filename)
+            lrc_path = os.path.join(output_directory, filename.replace(".srt", ".lrc"))
 
             with open(srt_path, "r", encoding="utf-8") as srt_file:
                 srt_content = srt_file.read()
@@ -38,8 +41,10 @@ def convert_srt_to_lrc(directory):
             print(f"转换完成: {filename} -> {lrc_path}")
 
 if __name__ == "__main__":
-    directory = input("请输入目标目录的路径：").strip()  # 输入指定目录
-    if os.path.isdir(directory):
-        convert_srt_to_lrc(directory)
+    input_directory = input("请输入SRT文件所在目录路径：").strip()
+    output_directory = input("请输入LRC文件保存目录路径：").strip()
+
+    if os.path.isdir(input_directory):
+        convert_srt_to_lrc(input_directory, output_directory)
     else:
-        print("指定的目录无效，请检查路径并重试。")
+        print("输入的SRT文件目录无效，请检查路径并重试。")
