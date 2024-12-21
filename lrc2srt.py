@@ -7,9 +7,10 @@ def lrc_to_srt(lrc_content):
     """
     srt_lines = []
     index = 1
+    timestamps = []  # 用于存储时间戳和对应的文本
 
+    # 解析 LRC 内容，提取时间戳和歌词
     for line in lrc_content.splitlines():
-        # 匹配 LRC 时间戳
         match = re.match(r"\[(\d{2}):(\d{2})\.(\d{2})\](.*)", line)
         if match:
             minute = int(match.group(1))
@@ -17,16 +18,27 @@ def lrc_to_srt(lrc_content):
             millisecond = int(match.group(3)) * 10
             text = match.group(4).strip()
 
-            # 生成时间戳（SRT格式）
-            start_time = f"{minute:02}:{second:02},{millisecond:03}"
-            # SRT没有结束时间戳，设置为 +2 秒
-            end_time = f"{minute:02}:{(second + 2):02},{millisecond:03}"
+            timestamps.append({
+                "time": (minute * 60 + second) * 1000 + millisecond,  # 转为毫秒
+                "text": text
+            })
 
-            # 写入 SRT 格式
-            srt_lines.append(f"{index}")
-            srt_lines.append(f"{start_time} --> {end_time}")
-            srt_lines.append(f"{text}\n")
-            index += 1
+    # 生成 SRT 内容
+    for i in range(len(timestamps)):
+        start_time_ms = timestamps[i]["time"]
+        end_time_ms = timestamps[i + 1]["time"] if i + 1 < len(timestamps) else start_time_ms + 5000
+
+        # 格式化时间戳
+        start_time = f"{start_time_ms // 3600000:02}:{(start_time_ms % 3600000) // 60000:02}:{(start_time_ms % 60000) // 1000:02},{start_time_ms % 1000:03}"
+        end_time = f"{end_time_ms // 3600000:02}:{(end_time_ms % 3600000) // 60000:02}:{(end_time_ms % 60000) // 1000:02},{end_time_ms % 1000:03}"
+
+        # 写入 SRT 格式
+        srt_lines.append(f"{index}")
+        srt_lines.append(f"{start_time} --> {end_time}")
+        srt_lines.append(timestamps[i]["text"])
+        srt_lines.append("")  # 空行分隔
+
+        index += 1
 
     return "\n".join(srt_lines)
 
